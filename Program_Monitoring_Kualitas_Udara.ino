@@ -16,46 +16,45 @@
 #define BUZZER_PIN D2      // Pin Buzzer
 
 // Informasi Wi-Fi
-const char* ssid = "virus.exe";
-const char* password = "virus136";
+const char* ssid = "Arunations";
+const char* password = "TestWifi30";
 
 // Informasi Telegram
 const char* telegramToken = "6470706945:AAGfRs87HNz3YnuiWyFbFPfoGmSIxjsZCh0";
 const char* chatIds[] = {"1634461546", "6298395046"}; // Tambahkan ID chat di sini
 const int chatIdCount = sizeof(chatIds) / sizeof(chatIds[0]);    // Menghitung jumlah chat ID
 
-DHT dht(DHTPIN, DHTTYPE);               // Inisialisasi sensor DHT11
-BlynkTimer timer;                       // Inisialisasi timer untuk Blynk
-WiFiClientSecure client;                // Inisialisasi klien Wi-Fi dengan koneksi aman
-UniversalTelegramBot bot(telegramToken, client); // Inisialisasi bot Telegram
+DHT dht(DHTPIN, DHTTYPE);
+BlynkTimer timer;
+WiFiClientSecure client;
+UniversalTelegramBot bot(telegramToken, client);
 
-const int AQ_THRESHOLD = 150;           // Ambang batas kualitas udara
-bool isNotified = false;                // Status notifikasi
+const int AQ_THRESHOLD = 150;  // Ambang batas kualitas udara
+bool isNotified = false;       // Status apakah notifikasi sudah dikirim
 
 void setup() {
-  Serial.begin(9600);                   // Inisialisasi komunikasi serial
-  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password); // Menghubungkan ke server Blynk
-  dht.begin();                          // Inisialisasi sensor DHT11
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
+  dht.begin();
   
-  pinMode(LED_HIJAU, OUTPUT);           // Mengatur pin LED hijau sebagai output
-  pinMode(LED_MERAH, OUTPUT);           // Mengatur pin LED merah sebagai output
-  pinMode(BUZZER_PIN, OUTPUT);          // Mengatur pin buzzer sebagai output
+  pinMode(LED_HIJAU, OUTPUT);
+  pinMode(LED_MERAH, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 
-  digitalWrite(LED_HIJAU, LOW);         // Mematikan LED hijau pada awal
-  digitalWrite(LED_MERAH, LOW);         // Mematikan LED merah pada awal
-  digitalWrite(BUZZER_PIN, LOW);        // Mematikan buzzer pada awal
+  digitalWrite(LED_HIJAU, LOW);
+  digitalWrite(LED_MERAH, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
 
-  client.setInsecure();                 // Menghindari sertifikat untuk bot Telegram
+  client.setInsecure();  // Menghindari sertifikat
   
-  // Mengirim pesan "ONLINE" ke semua chat ID Telegram
+  // Mengirim pesan online ke semua ID Telegram
   for (int i = 0; i < chatIdCount; i++) {
     bot.sendMessage(chatIds[i], "ESP8266 ONLINE");
   }
 
-  // Menjadwalkan fungsi `sendData` untuk berjalan setiap 3 detik
-  timer.setInterval(3000L, sendData);
+  // Mengatur timer untuk pembaruan berkala
+  timer.setInterval(60000L, sendData);  // Mengirim data setiap 1 Menit
 }
-
 
 void sendData() {
   // Membaca nilai dari sensor MQ135 dan DHT
@@ -122,8 +121,7 @@ void sendData() {
   }
 }
 
-
 void loop() {
   Blynk.run();
-  timer.run();  // Menjalankan timer untuk pembaruan data berkala
+  timer.run(); // Menjalankan timer untuk pembaruan data berkala
 }
